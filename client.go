@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 )
+
+var DELIMITER = []byte("\r\n")
 
 type Client struct {
 	conn       net.Conn
@@ -88,4 +91,84 @@ func (c *Client) registerUser(args []byte) error {
 
 func (c *Client) err(err error) {
 	c.conn.Write([]byte(fmt.Sprintf("ERR: %s\n", err.Error())))
+}
+
+func (c *Client) joinChannel(args []byte) error {
+	channel := bytes.TrimSpace(args)
+	if channel[0] != '#' {
+		return fmt.Errorf("Channel must start with '#'")
+	}
+
+	c.outbound <- Command{
+		recipient: string(channel),
+		sender:    c.username,
+		id:        JOIN,
+	}
+
+	return nil
+}
+
+func (c *Client) leaveChannel(args []byte) error {
+	channel := bytes.TrimSpace(args)
+	if channel[0] != '#' {
+		return fmt.Errorf("Channel must start with '#'")
+	}
+
+	c.outbound <- Command{
+		recipient: string(channel),
+		sender:    c.username,
+		id:        LEAVE,
+	}
+
+	return nil
+}
+
+func (c *Client) sendMsg(args []byte) error {
+	// MSG #channel or @user lenght\r\message
+	args = bytes.TrimSpace(args)
+	if args[0] != '#' && args[0] != '@' {
+		return fmt.Errorf("Recipient must be a #channel or @user")
+	}
+
+	recipient := bytes.Split(args, []byte(" "))[0]
+	if len(recipient) == 0 {
+		return fmt.Errorf("Recipient must have a name")
+	}
+
+	args = bytes.TrimSpace(bytes.TrimPrefix(args, recipient))
+	l := bytes.Split(args, DELIMITER)[0]
+	length, err := strconv.Atoi(string(l))
+	if err != nil {
+		return fmt.Errorf("body length must be present")
+
+	}
+	if length == 0 {
+		return fmt.Errorf("body length must be at least 1")
+	}
+
+	padding := len(l) + len(DELIMITER) // Size of the body length + the delimiter
+	body := args[padding : padding+length]
+
+	c.outbound <- Command{
+		recipient: string(recipient),
+		sender:    c.username,
+		body:      body,
+		id:        MSG,
+	}
+
+	return nil
+}
+
+func (c *Client) getChannels() {
+	c.outbound <- Command{
+		sender: c.username,
+		id:     CHNS,
+	}
+}
+
+func (c *Client) getUsers() {
+	c.outbound <- Command{
+		sender: c.username,
+		id:     USRS,
+	}
 }

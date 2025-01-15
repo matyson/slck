@@ -12,7 +12,7 @@ const (
 )
 
 type Command struct {
-	ID        ID
+	id        ID
 	body      []byte
 	recipient string
 	sender    string
