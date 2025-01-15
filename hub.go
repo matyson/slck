@@ -33,7 +33,7 @@ func (h *Hub) run() {
 			case USRS:
 				h.listUsers(command.sender)
 			default:
-				h.err(fmt.Errorf("unknown command: %s", command.id))
+				h.err(fmt.Errorf("unknown command: %d", command.id))
 			}
 
 		}

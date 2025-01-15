@@ -76,10 +76,10 @@ func (c *Client) handle(msg []byte) {
 func (c *Client) registerUser(args []byte) error {
 	user := bytes.TrimSpace(args)
 	if user[0] != '@' {
-		return fmt.Errorf("Username must start with '@'")
+		return fmt.Errorf("username must start with '@'")
 	}
 	if len(user) == 0 {
-		return fmt.Errorf("Username cannot be empty")
+		return fmt.Errorf("username cannot be empty")
 	}
 
 	c.username = string(user)
@@ -127,12 +127,12 @@ func (c *Client) sendMsg(args []byte) error {
 	// MSG #channel or @user lenght\r\message
 	args = bytes.TrimSpace(args)
 	if args[0] != '#' && args[0] != '@' {
-		return fmt.Errorf("Recipient must be a #channel or @user")
+		return fmt.Errorf("recipient must be a #channel or @user")
 	}
 
 	recipient := bytes.Split(args, []byte(" "))[0]
 	if len(recipient) == 0 {
-		return fmt.Errorf("Recipient must have a name")
+		return fmt.Errorf("recipient must have a name")
 	}
 
 	args = bytes.TrimSpace(bytes.TrimPrefix(args, recipient))
