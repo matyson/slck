@@ -124,7 +124,7 @@ func (h *Hub) listChannels(user string) {
 			client.conn.Write([]byte("No channels\n"))
 		} else {
 			for name := range h.channels {
-				names = append(names, fmt.Sprintf("#%s", name))
+				names = append(names, name)
 			}
 
 			res := strings.Join(names, ", ")
@@ -141,7 +141,7 @@ func (h *Hub) listUsers(user string) {
 			client.conn.Write([]byte("No users\n"))
 		} else {
 			for name := range h.clients {
-				names = append(names, fmt.Sprintf("@%s", name))
+				names = append(names, name)
 			}
 
 			res := strings.Join(names, ", ")
