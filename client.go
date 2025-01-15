@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var DELIMITER = []byte("\r\n")
+var DELIMITER = []byte(`\r\n`)
 
 type Client struct {
 	conn       net.Conn
@@ -124,7 +124,7 @@ func (c *Client) leaveChannel(args []byte) error {
 }
 
 func (c *Client) sendMsg(args []byte) error {
-	// MSG #channel or @user lenght\r\message
+	// MSG #channel or @user length\r\nmessage
 	args = bytes.TrimSpace(args)
 	if args[0] != '#' && args[0] != '@' {
 		return fmt.Errorf("recipient must be a #channel or @user")
