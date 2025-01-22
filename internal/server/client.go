@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"bufio"
@@ -19,7 +19,16 @@ type Client struct {
 	username   string
 }
 
-func (c *Client) read() error {
+func NewClient(conn net.Conn, outbound chan<- Command, register chan<- *Client, unregister chan<- *Client) *Client {
+	return &Client{
+		conn:       conn,
+		outbound:   outbound,
+		register:   register,
+		unregister: unregister,
+	}
+}
+
+func (c *Client) Read() error {
 	for {
 		msg, err := bufio.NewReader(c.conn).ReadBytes('\n')
 		if err == io.EOF {

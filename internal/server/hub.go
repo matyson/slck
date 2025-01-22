@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -6,21 +6,31 @@ import (
 )
 
 type Hub struct {
-	channels        map[string]*Channel
-	clients         map[string]*Client
-	commands        chan Command
-	unregistrations chan *Client
-	registrations   chan *Client
+	channels         map[string]*Channel
+	clients          map[string]*Client
+	Commands         chan Command
+	Unresgistrations chan *Client
+	Registrations    chan *Client
 }
 
-func (h *Hub) run() {
+func NewHub() *Hub {
+	return &Hub{
+		channels:         make(map[string]*Channel),
+		clients:          make(map[string]*Client),
+		Commands:         make(chan Command),
+		Unresgistrations: make(chan *Client),
+		Registrations:    make(chan *Client),
+	}
+}
+
+func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.registrations:
+		case client := <-h.Registrations:
 			h.register(client)
-		case client := <-h.unregistrations:
+		case client := <-h.Unresgistrations:
 			h.unregister(client)
-		case command := <-h.commands:
+		case command := <-h.Commands:
 			switch command.id {
 			case JOIN:
 				h.joinChannel(command.sender, command.recipient)
