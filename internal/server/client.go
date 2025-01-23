@@ -19,7 +19,7 @@ type Client struct {
 	username   string
 }
 
-func NewClient(conn net.Conn, outbound chan<- Command, register chan<- *Client, unregister chan<- *Client) *Client {
+func newClient(conn net.Conn, outbound chan<- Command, register chan<- *Client, unregister chan<- *Client) *Client {
 	return &Client{
 		conn:       conn,
 		outbound:   outbound,
@@ -28,7 +28,7 @@ func NewClient(conn net.Conn, outbound chan<- Command, register chan<- *Client, 
 	}
 }
 
-func (c *Client) Read() error {
+func (c *Client) read() error {
 	for {
 		msg, err := bufio.NewReader(c.conn).ReadBytes('\n')
 		if err == io.EOF {

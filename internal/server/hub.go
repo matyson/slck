@@ -6,31 +6,31 @@ import (
 )
 
 type Hub struct {
-	channels         map[string]*Channel
-	clients          map[string]*Client
-	Commands         chan Command
-	Unresgistrations chan *Client
-	Registrations    chan *Client
+	channels        map[string]*Channel
+	clients         map[string]*Client
+	commands        chan Command
+	unregistrations chan *Client
+	registrations   chan *Client
 }
 
-func NewHub() *Hub {
+func newHub() *Hub {
 	return &Hub{
-		channels:         make(map[string]*Channel),
-		clients:          make(map[string]*Client),
-		Commands:         make(chan Command),
-		Unresgistrations: make(chan *Client),
-		Registrations:    make(chan *Client),
+		channels:        make(map[string]*Channel),
+		clients:         make(map[string]*Client),
+		commands:        make(chan Command),
+		unregistrations: make(chan *Client),
+		registrations:   make(chan *Client),
 	}
 }
 
-func (h *Hub) Run() {
+func (h *Hub) run() {
 	for {
 		select {
-		case client := <-h.Registrations:
+		case client := <-h.registrations:
 			h.register(client)
-		case client := <-h.Unresgistrations:
+		case client := <-h.unregistrations:
 			h.unregister(client)
-		case command := <-h.Commands:
+		case command := <-h.commands:
 			switch command.id {
 			case JOIN:
 				h.joinChannel(command.sender, command.recipient)

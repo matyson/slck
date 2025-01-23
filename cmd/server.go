@@ -2,34 +2,19 @@ package main
 
 import (
 	"log"
-	"net"
 
 	"github.com/matyson/slck/internal/server"
 )
 
 const (
-	PORT = "8080"
+	PORT = "3000"
 )
 
 func main() {
-	ln, err := net.Listen("tcp", ":"+PORT)
-	if err != nil {
-		log.Printf("%v", err)
-	}
-	defer ln.Close()
-	log.Printf("server listening on :%s\n", PORT)
+	s := server.NewServer(":" + PORT)
+	s.Run()
+	log.Fatal(s.AcceptLoop())
 
-	hub := server.NewHub()
-	go hub.Run()
+	defer s.Ln.Close()
 
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Printf("%v", err)
-		}
-		log.Printf("new connection from %s\n", conn.RemoteAddr())
-
-		c := server.NewClient(conn, hub.Commands, hub.Registrations, hub.Unresgistrations)
-		go c.Read()
-	}
 }
