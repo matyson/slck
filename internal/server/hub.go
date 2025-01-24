@@ -56,7 +56,7 @@ func (h *Hub) register(client *Client) {
 		client.conn.Write([]byte("ERR: Username already taken\n"))
 	} else {
 		h.clients[client.username] = client
-		client.conn.Write([]byte("OK\n"))
+		client.conn.Write([]byte(fmt.Sprintf("OK: Welcome %s\n", client.username)))
 	}
 }
 
@@ -67,7 +67,7 @@ func (h *Hub) unregister(client *Client) {
 		for _, channel := range h.channels {
 			delete(channel.clients, client)
 		}
-		client.conn.Write([]byte("OK\n"))
+		client.conn.Write([]byte(fmt.Sprintf("OK: Goodbye %s\n", client.username)))
 	} else {
 		client.conn.Write([]byte("ERR: Username not found\n"))
 	}
